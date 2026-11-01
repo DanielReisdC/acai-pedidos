@@ -22,7 +22,7 @@ function NovaOpcao({ grupo, aoCriar }) {
   }
 
   return (
-    <form onSubmit={enviar} className="mt-3 flex gap-2 border-t pt-3">
+    <form onSubmit={enviar} className="flex flex-wrap gap-2 mt-3 flex gap-2 border-t pt-3">
       <input
         value={nome}
         onChange={(e) => setNome(e.target.value)}
@@ -175,7 +175,7 @@ export default function AdminOpcoes() {
 
       <form
         onSubmit={criarGrupo}
-        className="flex gap-2 rounded-xl border-2 border-dashed border-purple-200 p-4"
+        className="flex flex-wrap gap-2 flex gap-2 rounded-xl border-2 border-dashed border-purple-200 p-4"
       >
         <input
           value={novoGrupo}
