@@ -88,7 +88,7 @@ export default function PedidosPainel() {
   <Link to="/painel/cardapio" className="text-sm font-medium text-purple-800 underline">
     Cardápio
   </Link>
-  <button onClick={sair} className="text-sm text-purple-800 underline">Sair</button>
+  <button onClick={sair} className="text-sm text-purple-800 underline"><Link>Sair</Link></button>
 </div>
       </header>
 
@@ -97,11 +97,13 @@ export default function PedidosPainel() {
           <button
             key={a}
             onClick={() => setAba(a)}
-            className={`rounded-full px-4 py-2 text-sm font-medium ${
+            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-medium ${
               aba === a ? 'bg-purple-700 text-white' : 'bg-white text-purple-900'
             }`}
           >
+            
             {a === 'ativos' ? 'Em andamento' : 'Finalizados'}
+        
           </button>
         ))}
       </div>

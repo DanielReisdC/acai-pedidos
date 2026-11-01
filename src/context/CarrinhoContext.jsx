@@ -31,12 +31,18 @@ export function CarrinhoProvider({ children }) {
   }
 
   function alterarQuantidade(chave, delta) {
-    setItens((atual) =>
-      atual
-        .map((i) => (i.chave === chave ? { ...i, quantidade: i.quantidade + delta } : i))
-        .filter((i) => i.quantidade > 0)
+  setItens((atual) =>
+    atual.map((i) =>
+      i.chave === chave
+        ? { ...i, quantidade: Math.min(50, Math.max(1, i.quantidade + delta)) }
+        : i
     )
-  }
+  )
+}
+
+function remover(chave) {
+  setItens((atual) => atual.filter((i) => i.chave !== chave))
+}
 
   function limpar() {
     setItens([])
@@ -47,7 +53,7 @@ export function CarrinhoProvider({ children }) {
 
   return (
     <CarrinhoContext.Provider
-      value={{ itens, adicionar, alterarQuantidade, limpar, total, quantidadeTotal }}
+      value={{ itens, adicionar, alterarQuantidade, limpar, remover, total, quantidadeTotal }}
     >
       {children}
     </CarrinhoContext.Provider>

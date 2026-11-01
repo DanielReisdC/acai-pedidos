@@ -38,7 +38,7 @@ function NovaOpcao({ grupo, aoCriar }) {
         title="Preço adicional"
         className="w-24 rounded border border-gray-200 p-2"
       />
-      <button className="rounded bg-purple-700 px-3 text-white">Adicionar</button>
+      <button className="cursor-pointer rounded bg-purple-700 px-3 text-white">Adicionar</button>
     </form>
   )
 }
@@ -183,7 +183,7 @@ export default function AdminOpcoes() {
           placeholder="Nova seção (ex.: Frutas)"
           className="flex-1 rounded border border-gray-200 p-2"
         />
-        <button className="rounded bg-purple-700 px-4 text-white">Criar seção</button>
+        <button className="cursor-pointer rounded bg-purple-700 px-4 text-white">Criar seção</button>
       </form>
     </div>
   )

@@ -77,7 +77,7 @@ export default function Pedido() {
         <span>{moeda(pedido.total)}</span>
       </div>
 
-      <Link to="/" className="mt-6 block text-center text-purple-800">Fazer outro pedido</Link>
+      <Link to="/cardapio" className="mt-6 block text-center text-purple-800">Fazer outro pedido</Link>
     </div>
   )
 }

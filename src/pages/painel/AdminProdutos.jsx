@@ -75,7 +75,7 @@ function NovoProduto({ categorias, aoCriar }) {
         <datalist id="categorias">
           {categorias.map((c) => <option key={c} value={c} />)}
         </datalist>
-        <button className="rounded bg-purple-700 px-4 text-white">Criar</button>
+        <button className="cursor-pointer rounded bg-purple-700 px-4 text-white">Criar</button>
       </div>
     </form>
   )

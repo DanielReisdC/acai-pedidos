@@ -5,7 +5,7 @@ import { moeda } from '../lib/moeda'
 import { useCarrinho } from '../context/CarrinhoContext'
 
 export default function Carrinho() {
-  const { itens, alterarQuantidade, limpar, total } = useCarrinho()
+const { itens, alterarQuantidade, remover, limpar, total } = useCarrinho()
   const [nome, setNome] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState(null)
@@ -62,21 +62,28 @@ export default function Carrinho() {
                   )}
                   <p className="text-sm text-gray-500">{moeda(i.preco)} cada</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => alterarQuantidade(i.chave, -1)}
-                    className="h-8 w-8 rounded-full bg-purple-100 text-lg"
-                  >
-                    −
-                  </button>
-                  <span className="w-4 text-center">{i.quantidade}</span>
-                  <button
-                    onClick={() => alterarQuantidade(i.chave, 1)}
-                    className="h-8 w-8 rounded-full bg-purple-100 text-lg"
-                  >
-                    +
-                  </button>
-                </div>
+               <div className="flex flex-col items-end gap-2">
+  <div className="flex items-center gap-3">
+    <button
+      onClick={() => alterarQuantidade(i.chave, -1)}
+      disabled={i.quantidade <= 1}
+      className="h-8 w-8 rounded-full bg-purple-100 text-lg disabled:opacity-40"
+    >
+      −
+    </button>
+    <span className="w-4 text-center">{i.quantidade}</span>
+    <button
+      onClick={() => alterarQuantidade(i.chave, 1)}
+      disabled={i.quantidade >= 50}
+      className="h-8 w-8 rounded-full bg-purple-100 text-lg disabled:opacity-40"
+    >
+      +
+    </button>
+  </div>
+  <button onClick={() => remover(i.chave)} className="text-sm text-red-600">
+    Remover
+  </button>
+</div>
               </li>
             ))}
           </ul>
