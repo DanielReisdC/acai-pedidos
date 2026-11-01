@@ -5,22 +5,35 @@ const CarrinhoContext = createContext()
 export function CarrinhoProvider({ children }) {
   const [itens, setItens] = useState([])
 
-  function adicionar(produto) {
+  function adicionar(produto, opcoes = []) {
+    const chave = `${produto.id}|${opcoes.map((o) => o.id).sort().join(',')}`
+    const extra = opcoes.reduce((soma, o) => soma + Number(o.preco_adicional), 0)
+
     setItens((atual) => {
-      const existe = atual.find((i) => i.id === produto.id)
+      const existe = atual.find((i) => i.chave === chave)
       if (existe) {
         return atual.map((i) =>
-          i.id === produto.id ? { ...i, quantidade: i.quantidade + 1 } : i
+          i.chave === chave ? { ...i, quantidade: i.quantidade + 1 } : i
         )
       }
-      return [...atual, { ...produto, quantidade: 1 }]
+      return [
+        ...atual,
+        {
+          chave,
+          produto_id: produto.id,
+          nome: produto.nome,
+          opcoes,
+          preco: Number(produto.preco) + extra,
+          quantidade: 1,
+        },
+      ]
     })
   }
 
-  function alterarQuantidade(id, delta) {
+  function alterarQuantidade(chave, delta) {
     setItens((atual) =>
       atual
-        .map((i) => (i.id === id ? { ...i, quantidade: i.quantidade + delta } : i))
+        .map((i) => (i.chave === chave ? { ...i, quantidade: i.quantidade + delta } : i))
         .filter((i) => i.quantidade > 0)
     )
   }

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { moeda } from '../lib/moeda'
 import { useCarrinho } from '../context/CarrinhoContext'
-import { moeda } from './Cardapio'
 
 export default function Carrinho() {
   const { itens, alterarQuantidade, limpar, total } = useCarrinho()
@@ -21,7 +21,11 @@ export default function Carrinho() {
     setEnviando(true)
     const { data, error } = await supabase.rpc('criar_pedido', {
       p_nome: nome,
-      p_itens: itens.map((i) => ({ produto_id: i.id, quantidade: i.quantidade })),
+      p_itens: itens.map((i) => ({
+        produto_id: i.produto_id,
+        quantidade: i.quantidade,
+        opcoes: i.opcoes.map((o) => o.id),
+      })),
     })
     setEnviando(false)
 
@@ -36,7 +40,7 @@ export default function Carrinho() {
 
   return (
     <div className="mx-auto min-h-screen max-w-xl bg-purple-50 p-4">
-      <Link to="/" className="text-purple-800">← Voltar ao cardápio</Link>
+      <Link to="/cardapio" className="text-purple-800">← Voltar ao cardápio</Link>
       <h1 className="mb-4 mt-2 text-2xl font-bold">Seu pedido</h1>
 
       {itens.length === 0 ? (
@@ -45,15 +49,33 @@ export default function Carrinho() {
         <>
           <ul className="space-y-3">
             {itens.map((i) => (
-              <li key={i.id} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
-                <div>
+              <li
+                key={i.chave}
+                className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm"
+              >
+                <div className="pr-3">
                   <p className="font-medium">{i.nome}</p>
+                  {i.opcoes.length > 0 && (
+                    <p className="text-sm text-gray-500">
+                      {i.opcoes.map((o) => o.nome).join(', ')}
+                    </p>
+                  )}
                   <p className="text-sm text-gray-500">{moeda(i.preco)} cada</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => alterarQuantidade(i.id, -1)} className="h-8 w-8 rounded-full bg-purple-100 text-lg">−</button>
+                  <button
+                    onClick={() => alterarQuantidade(i.chave, -1)}
+                    className="h-8 w-8 rounded-full bg-purple-100 text-lg"
+                  >
+                    −
+                  </button>
                   <span className="w-4 text-center">{i.quantidade}</span>
-                  <button onClick={() => alterarQuantidade(i.id, 1)} className="h-8 w-8 rounded-full bg-purple-100 text-lg">+</button>
+                  <button
+                    onClick={() => alterarQuantidade(i.chave, 1)}
+                    className="h-8 w-8 rounded-full bg-purple-100 text-lg"
+                  >
+                    +
+                  </button>
                 </div>
               </li>
             ))}

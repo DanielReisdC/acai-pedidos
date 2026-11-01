@@ -60,10 +60,15 @@ export default function Pedido() {
 
       <ul className="mt-4 space-y-2">
         {pedido.itens.map((i, idx) => (
-          <li key={idx} className="flex justify-between rounded-lg bg-white p-3">
-            <span>{i.quantidade}x {i.nome_produto}</span>
-            <span>{moeda(i.quantidade * i.preco_unitario)}</span>
-          </li>
+          <li key={idx} className="rounded-lg bg-white p-3">
+  <div className="flex justify-between">
+    <span>{i.quantidade}x {i.nome_produto}</span>
+    <span>{moeda(i.quantidade * i.preco_unitario)}</span>
+  </div>
+  {i.opcoes.length > 0 && (
+    <p className="text-sm text-gray-500">{i.opcoes.join(', ')}</p>
+  )}
+</li>
         ))}
       </ul>
 

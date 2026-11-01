@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {  Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { moeda } from '../Cardapio'
 
@@ -31,7 +31,9 @@ export default function PedidosPainel() {
   const navigate = useNavigate()
 
   const carregar = useCallback(async () => {
-    let consulta = supabase.from('pedidos').select('*, itens_pedido(*)')
+    let consulta = supabase
+  .from('pedidos')
+  .select('*, itens_pedido(*, itens_pedido_opcoes(*))')
 
     if (aba === 'ativos') {
       consulta = consulta.in('status', ATIVOS).order('created_at', { ascending: true })
@@ -82,7 +84,12 @@ export default function PedidosPainel() {
     <div className="mx-auto min-h-screen max-w-3xl bg-purple-50 p-4">
       <header className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-purple-900">Pedidos</h1>
-        <button onClick={sair} className="text-sm text-purple-800 underline">Sair</button>
+       <div className="flex items-center gap-4">
+  <Link to="/painel/cardapio" className="text-sm font-medium text-purple-800 underline">
+    Cardápio
+  </Link>
+  <button onClick={sair} className="text-sm text-purple-800 underline">Sair</button>
+</div>
       </header>
 
       <div className="mb-4 flex gap-2">
@@ -118,10 +125,17 @@ export default function PedidosPainel() {
 
             <ul className="my-3 space-y-1 border-t pt-3">
               {p.itens_pedido.map((i) => (
-                <li key={i.id} className="flex justify-between text-sm">
-                  <span>{i.quantidade}x {i.nome_produto}</span>
-                  <span>{moeda(i.quantidade * i.preco_unitario)}</span>
-                </li>
+                <li key={i.id} className="text-sm">
+  <div className="flex justify-between">
+    <span>{i.quantidade}x {i.nome_produto}</span>
+    <span>{moeda(i.quantidade * i.preco_unitario)}</span>
+  </div>
+  {i.itens_pedido_opcoes.length > 0 && (
+    <p className="text-gray-500">
+      {i.itens_pedido_opcoes.map((o) => o.nome_opcao).join(', ')}
+    </p>
+  )}
+</li>
               ))}
             </ul>
 

@@ -1,27 +1,57 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { moeda } from '../lib/moeda'
 import { useCarrinho } from '../context/CarrinhoContext'
+import ModalProduto from '../components/ModalProduto'
 
-export const moeda = (valor) =>
-  Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+export { moeda } // mantém funcionando os imports antigos
+
+// Deixa só seções e opções ativas (e descarta seções sem nenhuma opção)
+function limparProduto(p) {
+  return {
+    ...p,
+    produto_grupos: p.produto_grupos
+      .filter((pg) => pg.grupos_opcao?.ativo)
+      .map((pg) => ({
+        ...pg,
+        grupos_opcao: {
+          ...pg.grupos_opcao,
+          opcoes: pg.grupos_opcao.opcoes.filter((o) => o.ativo),
+        },
+      }))
+      .filter((pg) => pg.grupos_opcao.opcoes.length > 0),
+  }
+}
+
+const temOpcoes = (p) => p.produto_grupos.length > 0
 
 export default function Cardapio() {
   const [produtos, setProdutos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
+  const [produtoAberto, setProdutoAberto] = useState(null)
   const { adicionar, total, quantidadeTotal } = useCarrinho()
 
   useEffect(() => {
     supabase
       .from('produtos')
-      .select('*')
+      .select(`
+        *,
+        produto_grupos (
+          minimo, maximo,
+          grupos_opcao (
+            id, nome, ordem, ativo,
+            opcoes ( id, nome, preco_adicional, ordem, ativo )
+          )
+        )
+      `)
       .eq('ativo', true)
       .order('categoria')
       .order('preco')
       .then(({ data, error }) => {
         if (error) setErro('Não foi possível carregar o cardápio.')
-        else setProdutos(data)
+        else setProdutos(data.map(limparProduto))
         setCarregando(false)
       })
   }, [])
@@ -56,10 +86,10 @@ export default function Cardapio() {
                       <p className="mt-1 font-semibold text-purple-800">{moeda(p.preco)}</p>
                     </div>
                     <button
-                      onClick={() => adicionar(p)}
+                      onClick={() => (temOpcoes(p) ? setProdutoAberto(p) : adicionar(p))}
                       className="rounded-lg bg-purple-700 px-4 py-2 text-white active:bg-purple-900"
                     >
-                      Adicionar
+                      {temOpcoes(p) ? 'Escolher' : 'Adicionar'}
                     </button>
                   </li>
                 ))}
@@ -67,6 +97,17 @@ export default function Cardapio() {
           </section>
         ))}
       </main>
+
+      {produtoAberto && (
+        <ModalProduto
+          produto={produtoAberto}
+          onFechar={() => setProdutoAberto(null)}
+          onConfirmar={(opcoes) => {
+            adicionar(produtoAberto, opcoes)
+            setProdutoAberto(null)
+          }}
+        />
+      )}
 
       {quantidadeTotal > 0 && (
         <Link
