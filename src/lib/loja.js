@@ -1,0 +1,1 @@
+export const WHATSAPP_LOJA = '5589999771598'

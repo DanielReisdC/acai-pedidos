@@ -255,9 +255,10 @@ export default function Carrinho() {
           </p>
 
           {erro && <p className="mt-3 text-red-600">{erro}</p>}
-              <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-                O pagamento é feito na loja, no momento da retirada.
-              </p>
+             <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+              O pagamento é combinado pelo WhatsApp depois que você finalizar o pedido: a loja envia a
+              chave Pix na conversa.
+            </p>
           <button
             onClick={finalizar}
             disabled={enviando}

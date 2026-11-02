@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { moeda } from '../../lib/moeda'
 import { formatarTelefone } from '../../lib/telefone'
+import { rotuloStatus } from '../../lib/status'
 
 const ROTULO = {
   aguardando_pagamento: 'Aguardando pagamento',
@@ -24,7 +25,35 @@ const ACOES = {
 
 const ATIVOS = ['aguardando_pagamento', 'pago', 'em_preparo', 'pronto']
 const FINALIZADOS = ['retirado', 'cancelado']
+function mensagemWhats(p) {
+  const linhas = [
+    `Olá, ${p.nome_cliente}! Aqui é da loja.`,
+    `Recebemos o seu pedido #${p.numero}:`,
+    '',
+  ]
 
+  p.itens_pedido.forEach((i) => {
+    linhas.push(`• ${i.quantidade}x ${i.nome_produto} — ${moeda(i.quantidade * i.preco_unitario)}`)
+    if (i.itens_pedido_opcoes.length > 0) {
+      linhas.push(`   ${i.itens_pedido_opcoes.map((o) => o.nome_opcao).join(', ')}`)
+    }
+  })
+
+  linhas.push('', `Total: ${moeda(p.total)}`)
+  linhas.push(
+    p.tipo_entrega === 'entrega'
+      ? `Entrega: ${p.endereco_rua}, ${p.endereco_numero} - ${p.endereco_bairro}`
+      : 'Retirada no local'
+  )
+  linhas.push('')
+  linhas.push(
+    p.status === 'aguardando_pagamento'
+      ? 'Para pagar, segue a chave Pix:'
+      : `Situação do pedido: ${rotuloStatus(p.status, p.tipo_entrega)}.`
+  )
+
+  return linhas.join('\n')
+}
 export default function PedidosPainel() {
   const [pedidos, setPedidos] = useState([])
   const [aba, setAba] = useState('ativos')
@@ -124,7 +153,7 @@ export default function PedidosPainel() {
                     </a>
                     {' · '}
                     <a
-                      href={`https://wa.me/55${p.telefone}`}
+                     href={`https://wa.me/55${p.telefone}?text=${encodeURIComponent(mensagemWhats(p))}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-green-700 underline"
