@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { moeda } from '../lib/moeda'
 import { formatarTelefone, telefoneValido } from '../lib/telefone'
 import { useCarrinho } from '../context/CarrinhoContext'
+import { salvarPedido } from '../lib/pedidosSalvos'
 const ENTREGA_DISPONIVEL = false
 function Entrada({ rotulo, obrigatorio = false, className = '', ...props }) {
   return (
@@ -87,6 +88,7 @@ export default function Carrinho() {
     }
 
     limpar()
+     salvarPedido(data)
     navigate(`/pedido/${data}`)
   }
 

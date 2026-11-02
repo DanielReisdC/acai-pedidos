@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { moeda } from '../lib/moeda'
 import { useCarrinho } from '../context/CarrinhoContext'
 import ModalProduto from '../components/ModalProduto'
+import PedidoEmAndamento from '../components/PedidoEmAndamento'
 
 export { moeda } // mantém funcionando os imports antigos
 
@@ -64,7 +65,7 @@ export default function Cardapio() {
         <h1 className="text-2xl font-bold">Açaí da Casa</h1>
         <p className="text-purple-200">Faça seu pedido e retire na loja</p>
       </header>
-
+      <PedidoEmAndamento />
       <main className="space-y-6 p-4">
         {carregando && <p>Carregando cardápio...</p>}
         {erro && <p className="text-red-600">{erro}</p>}
