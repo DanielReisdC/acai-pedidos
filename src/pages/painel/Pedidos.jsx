@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
-import {  Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { moeda } from '../Cardapio'
+import { moeda } from '../../lib/moeda'
+import { formatarTelefone } from '../../lib/telefone'
 
 const ROTULO = {
   aguardando_pagamento: 'Aguardando pagamento',
   pago: 'Pago',
   em_preparo: 'Em preparo',
-  pronto: 'Pronto para retirada',
-  retirado: 'Retirado',
+  pronto: 'Pronto para entrega',
+  retirado: 'Entregue',
   cancelado: 'Cancelado',
 }
 
@@ -18,7 +19,7 @@ const ACOES = {
   aguardando_pagamento: [{ texto: 'Marcar como pago', para: 'pago' }, CANCELAR],
   pago: [{ texto: 'Iniciar preparo', para: 'em_preparo' }, CANCELAR],
   em_preparo: [{ texto: 'Marcar pronto', para: 'pronto' }],
-  pronto: [{ texto: 'Marcar retirado', para: 'retirado' }],
+  pronto: [{ texto: 'Marcar entregue', para: 'retirado' }],
 }
 
 const ATIVOS = ['aguardando_pagamento', 'pago', 'em_preparo', 'pronto']
@@ -32,8 +33,8 @@ export default function PedidosPainel() {
 
   const carregar = useCallback(async () => {
     let consulta = supabase
-  .from('pedidos')
-  .select('*, itens_pedido(*, itens_pedido_opcoes(*))')
+      .from('pedidos')
+      .select('*, itens_pedido(*, itens_pedido_opcoes(*))')
 
     if (aba === 'ativos') {
       consulta = consulta.in('status', ATIVOS).order('created_at', { ascending: true })
@@ -84,12 +85,12 @@ export default function PedidosPainel() {
     <div className="mx-auto min-h-screen max-w-3xl bg-purple-50 p-4">
       <header className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-purple-900">Pedidos</h1>
-       <div className="flex items-center gap-4">
-  <Link to="/painel/cardapio" className="text-sm font-medium text-purple-800 underline">
-    Cardápio
-  </Link>
-  <button onClick={sair} className="text-sm text-purple-800 underline"><Link>Sair</Link></button>
-</div>
+        <div className="flex items-center gap-4">
+          <Link to="/painel/cardapio" className="text-sm font-medium text-purple-800 underline">
+            Cardápio
+          </Link>
+          <button onClick={sair} className="text-sm text-purple-800 underline">Sair</button>
+        </div>
       </header>
 
       <div className="mb-4 flex gap-2">
@@ -97,13 +98,11 @@ export default function PedidosPainel() {
           <button
             key={a}
             onClick={() => setAba(a)}
-            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-medium ${
+            className={`rounded-full px-4 py-2 text-sm font-medium ${
               aba === a ? 'bg-purple-700 text-white' : 'bg-white text-purple-900'
             }`}
           >
-            
             {a === 'ativos' ? 'Em andamento' : 'Finalizados'}
-        
           </button>
         ))}
       </div>
@@ -118,6 +117,22 @@ export default function PedidosPainel() {
               <div>
                 <p className="text-xl font-bold text-purple-800">#{p.numero}</p>
                 <p>{p.nome_cliente}</p>
+                {p.telefone && (
+                  <p className="text-sm">
+                    <a href={`tel:+55${p.telefone}`} className="text-purple-800 underline">
+                      {formatarTelefone(p.telefone)}
+                    </a>
+                    {' · '}
+                    <a
+                      href={`https://wa.me/55${p.telefone}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-green-700 underline"
+                    >
+                      WhatsApp
+                    </a>
+                  </p>
+                )}
                 <p className="text-sm text-gray-500">{hora(p.created_at)}</p>
               </div>
               <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-semibold text-purple-900">
@@ -125,19 +140,30 @@ export default function PedidosPainel() {
               </span>
             </div>
 
+            {p.endereco_rua && (
+              <div className="mt-3 rounded-lg bg-purple-50 p-3 text-sm">
+                <p className="font-medium">Entrega</p>
+                <p>
+                  {p.endereco_rua}, {p.endereco_numero} — {p.endereco_bairro}
+                </p>
+                {p.endereco_complemento && <p>Compl.: {p.endereco_complemento}</p>}
+                {p.endereco_referencia && <p>Ref.: {p.endereco_referencia}</p>}
+              </div>
+            )}
+
             <ul className="my-3 space-y-1 border-t pt-3">
               {p.itens_pedido.map((i) => (
                 <li key={i.id} className="text-sm">
-  <div className="flex justify-between">
-    <span>{i.quantidade}x {i.nome_produto}</span>
-    <span>{moeda(i.quantidade * i.preco_unitario)}</span>
-  </div>
-  {i.itens_pedido_opcoes.length > 0 && (
-    <p className="text-gray-500">
-      {i.itens_pedido_opcoes.map((o) => o.nome_opcao).join(', ')}
-    </p>
-  )}
-</li>
+                  <div className="flex justify-between">
+                    <span>{i.quantidade}x {i.nome_produto}</span>
+                    <span>{moeda(i.quantidade * i.preco_unitario)}</span>
+                  </div>
+                  {i.itens_pedido_opcoes.length > 0 && (
+                    <p className="text-gray-500">
+                      {i.itens_pedido_opcoes.map((o) => o.nome_opcao).join(', ')}
+                    </p>
+                  )}
+                </li>
               ))}
             </ul>
 

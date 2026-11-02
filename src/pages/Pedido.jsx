@@ -7,8 +7,8 @@ const STATUS = {
   aguardando_pagamento: 'Aguardando pagamento',
   pago: 'Pagamento confirmado',
   em_preparo: 'Em preparo',
-  pronto: 'Pronto para retirada!',
-  retirado: 'Retirado',
+  pronto: 'Pronto para entrega!',
+  retirado: 'Entregue',
   cancelado: 'Cancelado',
 }
 
@@ -42,7 +42,7 @@ export default function Pedido() {
     return (
       <div className="p-6">
         <p>Pedido não encontrado.</p>
-        <Link to="/" className="text-purple-800">Voltar ao cardápio</Link>
+        <Link to="/cardapio" className="text-purple-800">Voltar ao cardápio</Link>
       </div>
     )
   }
