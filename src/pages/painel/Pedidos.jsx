@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { moeda } from '../../lib/moeda'
 import { formatarTelefone } from '../../lib/telefone'
 import { rotuloStatus } from '../../lib/status'
+import { WHATSAPP_LOJA} from '../../lib/loja'
 
 const CANCELAR = { texto: 'Cancelar', para: 'cancelado', perigo: true }
 
@@ -45,7 +46,7 @@ function mensagemWhats(p) {
   linhas.push('')
   linhas.push(
     p.status === 'aguardando_pagamento'
-      ? 'Para pagar, segue a chave Pix:'
+      ? `Para pagar, segue a chave Pix: ${WHATSAPP_LOJA}`
       : `Situação do pedido: ${rotuloStatus(p.status, p.tipo_entrega)}.`
   )
 
