@@ -149,125 +149,175 @@ export default function AdminProdutos() {
     <div className="space-y-4">
       {erro && <p className="text-red-600">{erro}</p>}
 
-      <ul className="space-y-4">
-        {produtos.map((p) => {
-          const vinculos = [...p.produto_grupos].sort(
-            (a, b) => (achar(a.grupo_id)?.ordem ?? 0) - (achar(b.grupo_id)?.ordem ?? 0)
-          )
-          const disponiveis = grupos.filter(
-            (g) => g.ativo && !p.produto_grupos.some((pg) => pg.grupo_id === g.id)
-          )
+      
+<ul className="space-y-4">
+  {produtos.map((p) => {
+    const vinculos = [...p.produto_grupos].sort(
+      (a, b) => (achar(a.grupo_id)?.ordem ?? 0) - (achar(b.grupo_id)?.ordem ?? 0)
+    )
 
-          return (
-            <li
-              key={p.id}
-              className={`rounded-xl bg-white p-4 shadow-sm ${p.ativo ? '' : 'opacity-60'}`}
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <Campo
-                  valor={p.nome}
-                  onSalvar={(v) => atualizarProduto(p.id, { nome: v })}
-                  className="min-w-40 flex-1 font-semibold"
-                />
-                <span className="text-sm text-gray-500">R$</span>
-                <Campo
-                  tipo="number"
-                  step="0.01"
-                  min="0"
-                  valor={Number(p.preco).toFixed(2)}
-                  onSalvar={(v) => {
-                    const n = decimal(v)
-                    if (n !== null) atualizarProduto(p.id, { preco: n })
-                  }}
-                  className="w-24"
-                />
-                <label className="flex items-center gap-1 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={p.ativo}
-                    onChange={(e) => atualizarProduto(p.id, { ativo: e.target.checked })}
-                  />
-                  Ativo
-                </label>
-              </div>
+    const disponiveis = grupos.filter(
+      (g) => g.ativo && !p.produto_grupos.some((pg) => pg.grupo_id === g.id)
+    )
 
-              
-                <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                <Campo
-                  valor={p.descricao ?? ''}
-                  permiteVazio
-                  onSalvar={(v) => atualizarProduto(p.id, { descricao: v || null })}
-                  title="Descrição"
-                  placeholder="Descrição"
-                  className="min-w-40 flex-1"
-                />
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                <Campo
-                  valor={p.categoria}
-                  onSalvar={(v) => atualizarProduto(p.id, { categoria: v })}
-                  title="Categoria"
-                  className="w-32"
-                />
+    return (
+      <li
+        key={p.id}
+        className={`rounded-xl bg-white p-4 shadow-sm ${p.ativo ? '' : 'opacity-60'}`}
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+          {/* Nome */}
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-gray-500">
+              Nome do produto
+            </label>
+            <Campo
+              valor={p.nome}
+              onSalvar={(v) => atualizarProduto(p.id, { nome: v })}
+              className="w-full font-semibold"
+            />
+          </div>
+
+          {/* Preço */}
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-gray-500">
+              Preço (R$)
+            </label>
+            <Campo
+              tipo="number"
+              step="0.01"
+              min="0"
+              valor={Number(p.preco).toFixed(2)}
+              onSalvar={(v) => {
+                const n = decimal(v)
+                if (n !== null) atualizarProduto(p.id, { preco: n })
+              }}
+              className="w-full"
+            />
+          </div>
+
+          {/* Descrição */}
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-semibold text-gray-500">
+              Descrição do produto
+            </label>
+            <Campo
+              valor={p.descricao ?? ''}
+              permiteVazio
+              onSalvar={(v) => atualizarProduto(p.id, { descricao: v || null })}
+              placeholder="Ex.: Açaí cremoso com acompanhamentos à escolha"
+              className="w-full"
+            />
+          </div>
+
+          {/* Categoria */}
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-gray-500">
+              Categoria
+            </label>
+            <Campo
+              valor={p.categoria}
+              onSalvar={(v) => atualizarProduto(p.id, { categoria: v })}
+              className="w-full"
+            />
+          </div>
+
+          {/* Status */}
+          <div>
+            <span className="mb-1 block text-xs font-semibold text-gray-500">
+              Disponibilidade
+            </span>
+            <label className="flex h-10 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm">
+              <input
+                type="checkbox"
+                checked={p.ativo}
+                onChange={(e) =>
+                  atualizarProduto(p.id, { ativo: e.target.checked })
+                }
+                className="accent-purple-700"
+              />
+              {p.ativo ? 'Produto ativo' : 'Produto inativo'}
+            </label>
+          </div>
+        </div>
+
+        {/* Escolhas do cliente */}
+        <details className="mt-4 border-t pt-3">
+          <summary className="cursor-pointer text-sm font-semibold text-purple-800">
+            Escolhas do cliente ({vinculos.length})
+          </summary>
+
+          <ul className="mt-3 space-y-3">
+            {vinculos.map((pg) => (
+              <li
+                key={pg.grupo_id}
+                className="flex flex-wrap items-end gap-3 rounded-lg bg-purple-50 p-3 text-sm"
+              >
+                <div className="min-w-32 flex-1">
+                  <span className="mb-1 block text-xs font-semibold text-gray-500">
+                    Grupo de opções
+                  </span>
+                  <p className="font-medium text-purple-900">
+                    {achar(pg.grupo_id)?.nome}
+                    {achar(pg.grupo_id)?.ativo === false && ' (inativa)'}
+                  </p>
                 </div>
 
-              <details className="mt-3">
-                <summary className="cursor-pointer text-sm font-medium text-purple-800">
-                  Escolhas do cliente ({vinculos.length})
-                </summary>
+                <label>
+                  <span className="mb-1 block text-xs font-semibold text-gray-500">
+                    Mínimo
+                  </span>
+                  <Campo
+                    tipo="number"
+                    min="0"
+                    valor={pg.minimo}
+                    onSalvar={(v) => {
+                      const n = inteiro(v)
+                      if (n !== null && n >= 0)
+                        salvarLimite(p.id, pg.grupo_id, { minimo: n })
+                    }}
+                    className="w-16"
+                  />
+                </label>
 
-                <ul className="mt-2 space-y-2">
-                  {vinculos.map((pg) => (
-                    <li key={pg.grupo_id} className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="min-w-32 flex-1 font-medium">
-                        {achar(pg.grupo_id)?.nome}
-                        {achar(pg.grupo_id)?.ativo === false && ' (inativa)'}
-                      </span>
-                      <label className="flex items-center gap-1">
-                        mín
-                        <Campo
-                          tipo="number"
-                          min="0"
-                          valor={pg.minimo}
-                          onSalvar={(v) => {
-                            const n = inteiro(v)
-                            if (n !== null && n >= 0) salvarLimite(p.id, pg.grupo_id, { minimo: n })
-                          }}
-                          className="w-14"
-                        />
-                      </label>
-                      <label className="flex items-center gap-1">
-                        máx
-                        <Campo
-                          tipo="number"
-                          min="1"
-                          valor={pg.maximo}
-                          onSalvar={(v) => {
-                            const n = inteiro(v)
-                            if (n !== null && n >= 1) salvarLimite(p.id, pg.grupo_id, { maximo: n })
-                          }}
-                          className="w-14"
-                        />
-                      </label>
-                      <button
-                        onClick={() => desvincular(p.id, pg.grupo_id)}
-                        className="text-red-600"
-                      >
-                        Remover
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                <label>
+                  <span className="mb-1 block text-xs font-semibold text-gray-500">
+                    Máximo
+                  </span>
+                  <Campo
+                    tipo="number"
+                    min="1"
+                    valor={pg.maximo}
+                    onSalvar={(v) => {
+                      const n = inteiro(v)
+                      if (n !== null && n >= 1)
+                        salvarLimite(p.id, pg.grupo_id, { maximo: n })
+                    }}
+                    className="w-16"
+                  />
+                </label>
 
-                <VincularGrupo
-                  disponiveis={disponiveis}
-                  aoVincular={(grupoId) => vincular(p.id, grupoId)}
-                />
-              </details>
-            </li>
-          )
-        })}
-      </ul>
+                <button
+                  onClick={() => desvincular(p.id, pg.grupo_id)}
+                  className="pb-2 text-red-600 hover:underline"
+                >
+                  Remover
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <VincularGrupo
+            disponiveis={disponiveis}
+            aoVincular={(grupoId) => vincular(p.id, grupoId)}
+          />
+        </details>
+      </li>
+    )
+  })}
+</ul>
+
 
       <NovoProduto
         categorias={categorias}
