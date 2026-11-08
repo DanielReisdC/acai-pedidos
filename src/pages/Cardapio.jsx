@@ -62,7 +62,7 @@ export default function Cardapio() {
   return (
     <div className="mx-auto min-h-screen max-w-xl bg-purple-50 pb-28">
       <header className="bg-purple-800 p-6 text-white">
-        <h1 className="text-2xl font-bold">Açaí da Casa</h1>
+        <h1 className="text-2xl font-bold">Lumari Cardápio</h1>
         <p className="text-purple-200">Faça seu pedido e retire na loja</p>
       </header>
       <PedidoEmAndamento />
