@@ -191,13 +191,8 @@ export default function AdminProdutos() {
                 </label>
               </div>
 
-              <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                <Campo
-                  valor={p.categoria}
-                  onSalvar={(v) => atualizarProduto(p.id, { categoria: v })}
-                  title="Categoria"
-                  className="w-32"
-                />
+              
+                <div className="mt-2 flex flex-wrap gap-2 text-sm">
                 <Campo
                   valor={p.descricao ?? ''}
                   permiteVazio
@@ -207,6 +202,14 @@ export default function AdminProdutos() {
                   className="min-w-40 flex-1"
                 />
               </div>
+              <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                <Campo
+                  valor={p.categoria}
+                  onSalvar={(v) => atualizarProduto(p.id, { categoria: v })}
+                  title="Categoria"
+                  className="w-32"
+                />
+                </div>
 
               <details className="mt-3">
                 <summary className="cursor-pointer text-sm font-medium text-purple-800">

@@ -5,6 +5,7 @@ import { moeda } from '../../lib/moeda'
 import { formatarTelefone } from '../../lib/telefone'
 import { rotuloStatus } from '../../lib/status'
 import { WHATSAPP_LOJA} from '../../lib/loja'
+import { agruparEscolhas, itensOrdenados, precoBase } from '../../lib/escolhas'
 
 const CANCELAR = { texto: 'Cancelar', para: 'cancelado', perigo: true }
 
@@ -29,13 +30,12 @@ function mensagemWhats(p) {
     '',
   ]
 
-  p.itens_pedido.forEach((i) => {
-    linhas.push(`• ${i.quantidade}x ${i.nome_produto} — ${moeda(i.quantidade * i.preco_unitario)}`)
-    if (i.itens_pedido_opcoes.length > 0) {
-      linhas.push(`   ${i.itens_pedido_opcoes.map((o) => o.nome_opcao).join(', ')}`)
-    }
+ itensOrdenados(p.itens_pedido).forEach((i) => {
+  linhas.push(`• ${i.quantidade}x ${i.nome_produto} — ${moeda(i.quantidade * precoBase(i))}`)
+  agruparEscolhas(i.itens_pedido_opcoes, i.quantidade).forEach((g) => {
+    linhas.push(`   *${g.grupo}:* ${g.texto}`)
   })
-
+})
   linhas.push('', `Total: ${moeda(p.total)}`)
   linhas.push(
     p.tipo_entrega === 'entrega'
@@ -187,24 +187,27 @@ export default function PedidosPainel() {
                 </div>
               )}
 
-              <ul className="my-3 space-y-1 border-t pt-3">
-                {p.itens_pedido.map((i) => (
-                  <li key={i.id} className="text-sm">
-                    <div className="flex justify-between">
-                      <span>{i.quantidade}x {i.nome_produto}</span>
-                      <span>{moeda(i.quantidade * i.preco_unitario)}</span>
-                    </div>
-                    {i.itens_pedido_opcoes.length > 0 && (
-                      <p className="text-gray-500">
-                        {i.itens_pedido_opcoes.map((o) => o.nome_opcao).join(', ')}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                    <ul className="my-3 space-y-3 border-t pt-3">
+  {itensOrdenados(p.itens_pedido).map((i) => (
+    <li key={i.id} className="text-sm">
+      <div className="flex justify-between font-medium">
+        <span>{i.quantidade}x {i.nome_produto}</span>
+        <span>{moeda(i.quantidade * precoBase(i))}</span>
+      </div>
+      {agruparEscolhas(i.itens_pedido_opcoes, i.quantidade).map((g) => (
+        <p key={g.grupo} className="mt-0.5 pl-3 text-gray-600">
+          <span className="font-semibold text-gray-800">{g.grupo}:</span> {g.texto}
+        </p>
+      ))}
+    </li>
+  ))}
+</ul>
 
-              <div className="flex items-center justify-between">
-                <p className="font-bold">{moeda(p.total)}</p>
+              <div className="flex items-center justify-between border-t pt-3">
+  <p className="font-bold">
+    <span className="font-normal">Total: </span>
+    {moeda(p.total)}
+  </p>
                 <div className="flex gap-2">
                   {acoesDoPedido(p).map((a) => (
                     <button
