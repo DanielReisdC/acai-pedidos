@@ -1,1 +1,1 @@
-export const WHATSAPP_LOJA = '5589994510115'
+export const WHATSAPP_LOJA = '5589994211264'
