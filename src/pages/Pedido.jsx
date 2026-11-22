@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { moeda } from '../lib/moeda'
 import { rotuloStatus } from '../lib/status'
+import { WHATSAPP_LOJA } from '../lib/loja'
 
 export default function Pedido() {
   const { id } = useParams()
@@ -39,8 +40,14 @@ export default function Pedido() {
     )
   }
 
+  const avisoLoja = `https://wa.me/${WHATSAPP_LOJA}?text=${encodeURIComponent(
+    `Olá! Meu pedido número #${pedido.numero} foi realizado!`
+  )}`
+
   return (
     <div className="mx-auto min-h-screen max-w-xl bg-purple-50 p-4">
+      
+
       <div className="rounded-xl bg-white p-6 text-center shadow-sm">
         <p className="text-sm text-gray-500">
           Pedido • {pedido.tipo_entrega === 'entrega' ? 'Entrega' : 'Retirada no local'}
@@ -48,20 +55,28 @@ export default function Pedido() {
         <p className="text-5xl font-bold text-purple-800">#{pedido.numero}</p>
         <p className="mt-2">{pedido.nome_cliente}</p>
         <p className="mt-4 inline-block rounded-full bg-purple-100 px-4 py-2 font-semibold text-purple-900">
-          {rotuloStatus(pedido.status, pedido.tipo_entrega)}
+          {rotuloStatus(pedido.status, pedido.tipo_entrega, pedido.forma_pagamento)}
         </p>
       </div>
-
-      {pedido.status === 'aguardando_pagamento' && (
-        <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
-          <p className="font-semibold">Falta o pagamento</p>
-          <p className="mt-1">
-            A loja vai te chamar no WhatsApp, no número que você informou, para enviar a
-            chave Pix. Depois de pagar, mande o comprovante na conversa. Seu pedido começa a
-            ser preparado após a confirmação.
-          </p>
-        </div>
-      )}
+      {pedido.status === 'aguardando_pagamento' &&
+        (pedido.forma_pagamento === 'dinheiro' ? (
+          <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-semibold">Pagamento em dinheiro</p>
+            <p className="mt-1">
+              Você paga {pedido.tipo_entrega === 'entrega' ? 'na entrega' : 'na retirada'}. Se
+              precisar de troco, avise a loja pelo WhatsApp.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-semibold">Falta o pagamento</p>
+            <p className="mt-1">
+              A loja vai te chamar no WhatsApp, no número que você informou, para enviar a
+              chave Pix. Depois de pagar, mande o comprovante na conversa. Seu pedido começa a
+              ser preparado após a confirmação.
+            </p>
+          </div>
+        ))}
 
       <ul className="mt-4 space-y-2">
         {pedido.itens.map((i, idx) => (
@@ -81,8 +96,24 @@ export default function Pedido() {
         <span>Total</span>
         <span>{moeda(pedido.total)}</span>
       </div>
+      {pedido.status === 'aguardando_pagamento' && (
+        <div className="mb-4 rounded-xl bg-green-50 p-5 text-center">
+          <p className="text-lg font-bold text-green-800">Pedido realizado!</p>
+          <p className="mt-1 text-sm text-green-900">
+            Avise a loja pelo WhatsApp. A mensagem já vem pronta, é só enviar.
+          </p>
+         <a
+  href={avisoLoja}
+  target="_blank"
+  rel="noreferrer"
+  className="mt-3 inline-block rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white"
+>
+  Avisar a loja pelo WhatsApp
+</a>
+        </div>
+      )}
 
-      <Link to="/cardapio" className="mt-6 block text-center text-purple-800">Fazer outro pedido</Link>
+      <Link to="/" className="mt-6 block text-center text-purple-800">Fazer outro pedido</Link>
     </div>
   )
 }

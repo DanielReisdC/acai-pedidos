@@ -1,7 +1,12 @@
-export function rotuloStatus(status, tipo) {
+export function rotuloStatus(status, tipo, forma) {
   const entrega = tipo === 'entrega'
+  const emDinheiro = forma === 'dinheiro'
   const mapa = {
-    aguardando_pagamento: 'Aguardando pagamento',
+    aguardando_pagamento: emDinheiro
+      ? entrega
+        ? 'Pagamento na entrega'
+        : 'Pagamento na retirada'
+      : 'Aguardando pagamento',
     pago: 'Pagamento confirmado',
     em_preparo: 'Em preparo',
     pronto: entrega ? 'Pronto para entrega' : 'Pronto para retirada',

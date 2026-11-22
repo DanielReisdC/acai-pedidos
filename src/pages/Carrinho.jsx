@@ -36,6 +36,7 @@ export default function Carrinho() {
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState(null)
   const navigate = useNavigate()
+  const [pagamento, setPagamento] = useState(null) // 'pix' | 'dinheiro'
 
   const alterar = (campo) => (e) =>
     setDados((atual) => ({ ...atual, [campo]: e.target.value }))
@@ -58,12 +59,16 @@ export default function Carrinho() {
       setErro('Preencha rua, número e bairro.')
       return
     }
-
+    if (!pagamento) {
+      setErro('Escolha a forma de pagamento.')
+      return
+    }
     setEnviando(true)
     const { data, error } = await supabase.rpc('criar_pedido', {
       p_nome: dados.nome,
       p_telefone: dados.telefone,
       p_tipo: tipo,
+      p_pagamento: pagamento,
       p_endereco:
         tipo === 'entrega'
           ? {
@@ -147,6 +152,40 @@ export default function Carrinho() {
             <span>Total</span>
             <span>{moeda(total)}</span>
           </div>
+             <h2 className="mb-2 mt-8 text-lg font-semibold text-purple-900">
+  Forma de pagamento
+</h2>
+
+<div className="flex flex-col gap-3">
+  {[
+    ['pix', 'Pix'],
+    ['dinheiro', 'Dinheiro'],
+  ].map(([valor, rotulo]) => (
+    <button
+      key={valor}
+      type="button"
+      onClick={() => setPagamento(valor)}
+      className="flex items-center gap-3 text-left font-medium text-gray-700"
+    >
+      <span
+        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+          pagamento === valor
+            ? 'border-purple-700'
+            : 'border-gray-400'
+        }`}
+      >
+        {pagamento === valor && (
+          <span className="h-2.5 w-2.5 rounded-full bg-purple-700" />
+        )}
+      </span>
+
+      {rotulo}
+    </button>
+  ))}
+</div>
+
+
+
 
           <h2 className="mb-2 mt-8 text-lg font-semibold text-purple-900">
             Como você quer receber?
@@ -256,18 +295,25 @@ export default function Carrinho() {
               : 'Usamos seu telefone apenas para contatar você sobre este pedido.'}
           </p>
 
-          {erro && <p className="mt-3 text-red-600">{erro}</p>}
-             <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-              O pagamento é combinado pelo WhatsApp depois que você finalizar o pedido: a loja envia a
-              chave Pix na conversa.
-            </p>
-          <button
-            onClick={finalizar}
-            disabled={enviando}
-            className="mt-4 w-full rounded-xl bg-green-600 py-3 font-semibold text-white disabled:bg-gray-300"
-          >
-            {enviando ? 'Enviando...' : 'Finalizar pedido'}
-          </button>
+          {pagamento && (
+  <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+    {pagamento === 'pix'
+      ? 'Depois de finalizar o pedido, a loja chama você no WhatsApp, no número informado, e envia a chave Pix.'
+      : `Você paga em dinheiro ${tipo === 'entrega' ? 'na entrega' : 'na retirada'}. Se precisar de troco, avise a loja pelo WhatsApp.`}
+  </p>
+)}
+         <button
+  onClick={finalizar}
+  disabled={enviando || !pagamento}
+  className="mt-4 w-full rounded-xl bg-green-600 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
+>
+  {enviando ? 'Enviando...' : 'Finalizar pedido'}
+</button>
+{!pagamento && (
+  <p className="mt-2 text-center text-sm text-gray-500">
+    Escolha a forma de pagamento para finalizar.
+  </p>
+)}
         </>
       )}
     </div>

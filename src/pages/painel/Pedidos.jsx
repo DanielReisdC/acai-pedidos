@@ -11,9 +11,14 @@ const CANCELAR = { texto: 'Cancelar', para: 'cancelado', perigo: true }
 
 function acoesDoPedido(p) {
   const textoFinal = p.tipo_entrega === 'entrega' ? 'Marcar entregue' : 'Marcar retirado'
+  const iniciarPreparo = { texto: 'Iniciar preparo', para: 'em_preparo' }
   const mapa = {
-    aguardando_pagamento: [{ texto: 'Marcar como pago', para: 'pago' }, CANCELAR],
-    pago: [{ texto: 'Iniciar preparo', para: 'em_preparo' }, CANCELAR],
+    // pedido em dinheiro não espera confirmação de pagamento: a loja já pode preparar
+    aguardando_pagamento:
+      p.forma_pagamento === 'dinheiro'
+        ? [iniciarPreparo, CANCELAR]
+        : [{ texto: 'Marcar como pago', para: 'pago' }, CANCELAR],
+    pago: [iniciarPreparo, CANCELAR],
     em_preparo: [{ texto: 'Marcar pronto', para: 'pronto' }],
     pronto: [{ texto: textoFinal, para: 'retirado' }],
   }
@@ -30,25 +35,38 @@ function mensagemWhats(p) {
     '',
   ]
 
- itensOrdenados(p.itens_pedido).forEach((i) => {
-  linhas.push(`• ${i.quantidade}x ${i.nome_produto} — ${moeda(i.quantidade * precoBase(i))}`)
-  agruparEscolhas(i.itens_pedido_opcoes, i.quantidade).forEach((g) => {
-    linhas.push(`   *${g.grupo}:* ${g.texto}`)
+  itensOrdenados(p.itens_pedido).forEach((i) => {
+    linhas.push(`• ${i.quantidade}x ${i.nome_produto} — ${moeda(i.quantidade * precoBase(i))}`)
+    agruparEscolhas(i.itens_pedido_opcoes, i.quantidade).forEach((g) => {
+      linhas.push(`   *${g.grupo}:* ${g.texto}`)
+    })
   })
-})
+
+  const entrega = p.tipo_entrega === 'entrega'
+
   linhas.push('', `Total: ${moeda(p.total)}`)
   linhas.push(
-    p.tipo_entrega === 'entrega'
+    entrega
       ? `Entrega: ${p.endereco_rua}, ${p.endereco_numero} - ${p.endereco_bairro}`
       : 'Retirada no local'
   )
+  if (p.forma_pagamento) {
+    linhas.push(`Pagamento: ${p.forma_pagamento === 'pix' ? 'Pix' : 'Dinheiro'}`)
+  }
   linhas.push(`Acompanhe seu pedido: ${window.location.origin}/pedido/${p.id}`)
   linhas.push('')
-  linhas.push(
-    p.status === 'aguardando_pagamento'
-      ? `Para pagar, segue a chave Pix: ${WHATSAPP_LOJA}`
-      : `Situação do pedido: ${rotuloStatus(p.status, p.tipo_entrega)}.`
-  )
+
+  if (p.status !== 'aguardando_pagamento') {
+    linhas.push(
+      `Situação do pedido: ${rotuloStatus(p.status, p.tipo_entrega, p.forma_pagamento)}.`
+    )
+  } else if (p.forma_pagamento === 'dinheiro') {
+    linhas.push(
+      `Pagamento em dinheiro ${entrega ? 'na entrega' : 'na retirada'}. Precisa de troco? Se sim, é só nos dizer para quanto.`
+    )
+  } else {
+    linhas.push('Para pagar, segue a chave Pix: 89994211264')
+  }
 
   return linhas.join('\n')
 }
@@ -148,7 +166,11 @@ export default function PedidosPainel() {
                 <div>
                   <p className="flex items-center gap-2">
                     <span className="text-xl font-bold text-purple-800">#{p.numero}</span>
-                   
+                  {p.forma_pagamento && (
+                    <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                      {p.forma_pagamento === 'pix' ? 'Pix' : 'Dinheiro'}
+                    </span>
+                  )}
                   </p>
                   <p>{p.nome_cliente}</p>
                   {p.telefone && (
@@ -172,7 +194,7 @@ export default function PedidosPainel() {
                   <p className="text-sm text-gray-500">{hora(p.created_at)}</p>
                 </div>
                 <span className="inline-block whitespace-nowrap rounded-full bg-purple-100 px-3 py-1 text-sm font-semibold text-purple-900">
-                  {rotuloStatus(p.status, p.tipo_entrega)}
+                  {rotuloStatus(p.status, p.tipo_entrega, p.forma_pagamento)}
                 </span>
               </div>
 

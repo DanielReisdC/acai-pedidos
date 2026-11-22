@@ -44,7 +44,7 @@ export default function PedidoEmAndamento() {
           <span>
             <span className="block text-sm text-gray-500">Pedido em andamento</span>
             <span className="font-semibold text-purple-900">
-              #{p.numero} • {rotuloStatus(p.status, p.tipo_entrega)}
+              #{p.numero} • {rotuloStatus(p.status, p.tipo_entrega, p.forma_pagamento)}
             </span>
           </span>
           <span className="text-sm font-medium text-purple-800">Acompanhar →</span>
