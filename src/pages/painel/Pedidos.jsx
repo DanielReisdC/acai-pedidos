@@ -29,6 +29,11 @@ const ATIVOS = ['aguardando_pagamento', 'pago', 'em_preparo', 'pronto']
 const FINALIZADOS = ['retirado', 'cancelado']
 
 function mensagemWhats(p) {
+  if (p.status === 'pronto') {
+  return `Seu pedido número #${p.numero} está pronto para ${
+    p.tipo_entrega === 'entrega' ? 'a entrega' : 'a retirada'
+  }!`
+}
   const linhas = [
     `Olá, ${p.nome_cliente}! Aqui é da loja.`,
     `Recebemos o seu pedido #${p.numero}:`,
