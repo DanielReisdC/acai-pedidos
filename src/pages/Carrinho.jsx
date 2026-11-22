@@ -96,7 +96,15 @@ export default function Carrinho() {
      salvarPedido(data)
     navigate(`/pedido/${data}`)
   }
+  const enderecoCompleto =
+    tipo !== 'entrega' ||
+    (dados.rua.trim() !== '' && dados.numero.trim() !== '' && dados.bairro.trim() !== '')
 
+  const podeFinalizar =
+    Boolean(pagamento) &&
+    dados.nome.trim() !== '' &&
+    telefoneValido(dados.telefone) &&
+    enderecoCompleto
   return (
     <div className="mx-auto min-h-screen max-w-xl bg-purple-50 p-4 pb-10">
       <Link to="/cardapio" className="text-purple-800">← Voltar ao cardápio</Link>
@@ -304,16 +312,18 @@ export default function Carrinho() {
 )}
          <button
   onClick={finalizar}
-  disabled={enviando || !pagamento}
+  disabled={enviando || !podeFinalizar}
   className="mt-4 w-full rounded-xl bg-green-600 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
 >
   {enviando ? 'Enviando...' : 'Finalizar pedido'}
 </button>
-{!pagamento && (
+{!podeFinalizar && !enviando && (
   <p className="mt-2 text-center text-sm text-gray-500">
-    Escolha a forma de pagamento para finalizar.
+    Preencha {tipo === 'entrega' ? 'nome, telefone e endereço' : 'nome e telefone'} e
+    escolha a forma de pagamento para finalizar.
   </p>
 )}
+
         </>
       )}
     </div>
