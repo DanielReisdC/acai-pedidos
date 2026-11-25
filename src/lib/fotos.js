@@ -1,5 +1,9 @@
 const CLOUD = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 const PRESET = import.meta.env.VITE_CLOUDINARY_PRESET
+console.log('Cloudinary configurado:', {
+  cloud: Boolean(CLOUD),
+  preset: Boolean(PRESET),
+})
 
 // Reduz a foto no navegador antes de enviar (fotos de celular têm vários MB)
 export function redimensionar(arquivo, maxLado = 1200) {
