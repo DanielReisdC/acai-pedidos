@@ -37,7 +37,9 @@ export function redimensionar(arquivo, maxLado = 1200) {
 
 // Envia para o Cloudinary e devolve o endereço da imagem
 export async function enviarFoto(arquivo) {
-  if (!CLOUD || !PRESET) throw new Error('Cloudinary não configurado')
+  if (!CLOUD || !PRESET) {
+    throw new Error('as variáveis do Cloudinary não estão configuradas neste site')
+  }
 
   const blob = await redimensionar(arquivo)
   const dados = new FormData()
@@ -48,12 +50,13 @@ export async function enviarFoto(arquivo) {
     method: 'POST',
     body: dados,
   })
-  if (!resposta.ok) throw new Error('Falha no envio')
+  const resultado = await resposta.json().catch(() => ({}))
 
-  const resultado = await resposta.json()
+  if (!resposta.ok) {
+    throw new Error(resultado?.error?.message ?? `falha no envio (${resposta.status})`)
+  }
   return resultado.secure_url
 }
-
 // Pede ao Cloudinary a imagem já recortada e em formato leve
 export function fotoOtimizada(url, largura = 240, altura = largura) {
   if (!url || !url.includes('/upload/')) return url

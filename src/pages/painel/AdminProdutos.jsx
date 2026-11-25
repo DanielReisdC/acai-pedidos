@@ -99,9 +99,10 @@ function FotoProduto({ produto, aoMudar, aoErro }) {
         .eq('id', produto.id)
       if (error) throw error
       aoErro(null)
-    } catch {
-      aoErro('Não foi possível enviar a foto. Use uma imagem JPG, PNG ou WebP.')
-    }
+    } catch (erro) {
+  console.error('Erro ao enviar foto:', erro)
+  aoErro(`Não foi possível enviar a foto: ${erro.message ?? 'erro desconhecido'}`)
+}
     setEnviando(false)
     aoMudar()
   }
