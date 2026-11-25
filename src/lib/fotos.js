@@ -1,8 +1,13 @@
 const CLOUD = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 const PRESET = import.meta.env.VITE_CLOUDINARY_PRESET
 console.log(
-  'Variáveis VITE no site:',
-  Object.keys(import.meta.env).filter((k) => k.startsWith('VITE_'))
+  'Ambiente:', import.meta.env.VITE_VERCEL_ENV,
+  '| branch:', import.meta.env.VITE_VERCEL_GIT_COMMIT_REF,
+  '| endereço do projeto:', import.meta.env.VITE_VERCEL_PROJECT_PRODUCTION_URL
+)
+console.log(
+  'Cloudinary:',
+  Object.keys(import.meta.env).filter((k) => k.includes('CLOUDINARY'))
 )
 
 // Reduz a foto no navegador antes de enviar (fotos de celular têm vários MB)
