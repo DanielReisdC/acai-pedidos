@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { moeda } from '../lib/moeda'
+import { fotoOtimizada } from '../lib/fotos'
+
 
 function dica(min, max, total) {
   if (min === 0 && max >= total) return 'Opcional'
@@ -39,6 +41,13 @@ export default function ModalProduto({ produto, onFechar, onConfirmar }) {
         className="mx-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-white p-5"
         onClick={(e) => e.stopPropagation()}
       >
+        {produto.foto_url && (
+  <img
+    src={fotoOtimizada(produto.foto_url, 800, 352)}
+    alt={produto.nome}
+    className="mb-4 h-44 w-full rounded-xl object-cover"
+  />
+)}
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-xl font-bold">{produto.nome}</h2>

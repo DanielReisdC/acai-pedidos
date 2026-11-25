@@ -5,6 +5,7 @@ import { moeda } from '../lib/moeda'
 import { useCarrinho } from '../context/CarrinhoContext'
 import ModalProduto from '../components/ModalProduto'
 import PedidoEmAndamento from '../components/PedidoEmAndamento'
+import { fotoOtimizada } from '../lib/fotos'
 
 export { moeda } // mantém funcionando os imports antigos
 
@@ -77,22 +78,30 @@ export default function Cardapio() {
               {produtos
                 .filter((p) => p.categoria === cat)
                 .map((p) => (
-                  <li
-                    key={p.id}
-                    className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm"
-                  >
-                    <div className="pr-3">
-                      <p className="font-medium">{p.nome}</p>
-                      <p className="text-sm text-gray-500">{p.descricao}</p>
-                      <p className="mt-1 font-semibold text-purple-800">{moeda(p.preco)}</p>
-                    </div>
-                    <button
-                      onClick={() => (temOpcoes(p) ? setProdutoAberto(p) : adicionar(p))}
-                      className="rounded-lg bg-purple-700 px-4 py-2 text-white active:bg-purple-900"
-                    >
-                      {temOpcoes(p) ? 'Escolher' : 'Adicionar'}
-                    </button>
-                  </li>
+                 <li
+                key={p.id}
+                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm"
+              >
+                {p.foto_url && (
+                  <img
+                    src={fotoOtimizada(p.foto_url, 240)}
+                    alt={p.nome}
+                    loading="lazy"
+                    className="h-20 w-20 flex-none rounded-lg object-cover"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{p.nome}</p>
+                  <p className="text-sm text-gray-500">{p.descricao}</p>
+                  <p className="mt-1 font-semibold text-purple-800">{moeda(p.preco)}</p>
+                </div>
+                <button
+                  onClick={() => (temOpcoes(p) ? setProdutoAberto(p) : adicionar(p))}
+                  className="flex-none rounded-lg bg-purple-700 px-4 py-2 text-white active:bg-purple-900"
+                >
+                  {temOpcoes(p) ? 'Escolher' : 'Adicionar'}
+                </button>
+              </li>
                 ))}
             </ul>
           </section>

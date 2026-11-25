@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import Campo from '../../components/Campo'
 import { decimal, inteiro } from '../../lib/numeros'
+import { enviarFoto, fotoOtimizada } from '../../lib/fotos'
 
 function VincularGrupo({ disponiveis, aoVincular }) {
   const [grupoId, setGrupoId] = useState('')
@@ -78,6 +79,71 @@ function NovoProduto({ categorias, aoCriar }) {
         <button className="cursor-pointer rounded bg-purple-700 px-4 text-white">Criar</button>
       </div>
     </form>
+  )
+}
+function FotoProduto({ produto, aoMudar, aoErro }) {
+  const [enviando, setEnviando] = useState(false)
+  const miniatura = fotoOtimizada(produto.foto_url, 160)
+
+  async function escolher(e) {
+    const arquivo = e.target.files?.[0]
+    e.target.value = '' // permite escolher o mesmo arquivo de novo
+    if (!arquivo) return
+
+    setEnviando(true)
+    try {
+      const url = await enviarFoto(arquivo)
+      const { error } = await supabase
+        .from('produtos')
+        .update({ foto_url: url })
+        .eq('id', produto.id)
+      if (error) throw error
+      aoErro(null)
+    } catch {
+      aoErro('Não foi possível enviar a foto. Use uma imagem JPG, PNG ou WebP.')
+    }
+    setEnviando(false)
+    aoMudar()
+  }
+
+  async function remover() {
+    setEnviando(true)
+    const { error } = await supabase
+      .from('produtos')
+      .update({ foto_url: null })
+      .eq('id', produto.id)
+    if (error) aoErro('Não foi possível remover a foto.')
+    setEnviando(false)
+    aoMudar()
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      {miniatura ? (
+        <img src={miniatura} alt="" className="h-16 w-16 rounded-lg object-cover" />
+      ) : (
+        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-400">
+          sem foto
+        </div>
+      )}
+      <div className="flex flex-col gap-1 text-sm">
+        <label className="cursor-pointer font-medium text-purple-800 underline">
+          {enviando ? 'Enviando...' : miniatura ? 'Trocar foto' : 'Adicionar foto'}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            disabled={enviando}
+            onChange={escolher}
+          />
+        </label>
+        {miniatura && !enviando && (
+          <button onClick={remover} className="text-left text-red-600">
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -165,6 +231,7 @@ export default function AdminProdutos() {
         key={p.id}
         className={`rounded-xl bg-white p-4 shadow-sm ${p.ativo ? '' : 'opacity-60'}`}
       >
+      
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
           {/* Nome */}
@@ -178,6 +245,7 @@ export default function AdminProdutos() {
               className="w-full font-semibold"
             />
           </div>
+          
 
           {/* Preço */}
           <div>
@@ -240,7 +308,11 @@ export default function AdminProdutos() {
               {p.ativo ? 'Produto ativo' : 'Produto inativo'}
             </label>
           </div>
+            <div className="mt-3">
+  <FotoProduto produto={p} aoMudar={carregar} aoErro={setErro} />
+</div>
         </div>
+
 
         {/* Escolhas do cliente */}
         <details className="mt-4 border-t pt-3">
