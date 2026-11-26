@@ -41,13 +41,7 @@ export default function ModalProduto({ produto, onFechar, onConfirmar }) {
         className="mx-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-white p-5"
         onClick={(e) => e.stopPropagation()}
       >
-        {produto.foto_url && (
-  <img
-    src={fotoOtimizada(produto.foto_url, 800, 352)}
-    alt={produto.nome}
-    className="mb-4 h-44 w-full rounded-xl object-cover"
-  />
-)}
+     
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-xl font-bold">{produto.nome}</h2>
@@ -55,7 +49,13 @@ export default function ModalProduto({ produto, onFechar, onConfirmar }) {
           </div>
           <button onClick={onFechar} className="text-2xl leading-none text-gray-400">×</button>
         </div>
-
+             {produto.foto_url && (
+  <img
+    src={fotoOtimizada(produto.foto_url, 800, 352)}
+    alt={produto.nome}
+    className="mb-4 h-44 w-full rounded-xl object-cover"
+  />
+)}
         {grupos.map((pg) => {
           const grupo = pg.grupos_opcao
           const lista = escolhas[grupo.id] ?? []

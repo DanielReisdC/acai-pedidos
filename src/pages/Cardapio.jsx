@@ -6,6 +6,7 @@ import { useCarrinho } from '../context/CarrinhoContext'
 import ModalProduto from '../components/ModalProduto'
 import PedidoEmAndamento from '../components/PedidoEmAndamento'
 import { fotoOtimizada } from '../lib/fotos'
+import logoLumari from '../assets/Lumari.png'
 
 export { moeda } // mantém funcionando os imports antigos
 
@@ -62,10 +63,20 @@ export default function Cardapio() {
 
   return (
     <div className="mx-auto min-h-screen max-w-xl bg-purple-50 pb-28">
-      <header className="bg-purple-800 p-6 text-white">
-        <h1 className="text-2xl font-bold">Lumari Cardápio</h1>
-        <p className="text-purple-200">Faça seu pedido e retire na loja</p>
-      </header>
+   <header className="flex items-center gap-4 bg-purple-800 px-6 py-5 text-white">
+  <img
+    src={logoLumari}
+    alt="Lumari"
+    className="h-20 w-20 flex-none object-contain"
+  />
+
+  <div className="min-w-0">
+    <h1 className="text-2xl font-bold">Lumari Cardápio</h1>
+    <p className="text-sm text-purple-200">
+      Faça seu pedido e retire na loja
+    </p>
+  </div>
+</header>
       <PedidoEmAndamento />
       <main className="space-y-6 p-4">
         {carregando && <p>Carregando cardápio...</p>}
