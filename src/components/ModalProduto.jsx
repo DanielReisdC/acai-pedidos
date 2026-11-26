@@ -49,13 +49,7 @@ export default function ModalProduto({ produto, onFechar, onConfirmar }) {
           </div>
           <button onClick={onFechar} className="text-2xl leading-none text-gray-400">×</button>
         </div>
-             {produto.foto_url && (
-  <img
-    src={fotoOtimizada(produto.foto_url, 800, 352)}
-    alt={produto.nome}
-    className="mb-4 h-44 w-full rounded-xl object-cover"
-  />
-)}
+
         {grupos.map((pg) => {
           const grupo = pg.grupos_opcao
           const lista = escolhas[grupo.id] ?? []
@@ -84,7 +78,7 @@ export default function ModalProduto({ produto, onFechar, onConfirmar }) {
                       >
                         <span className="flex items-center gap-3">
                           <input
-                            type={pg.maximo === 1 ? 'radio' : 'checkbox'}
+                           type={pg.minimo >= 1 && pg.maximo === 1 ? 'radio' : 'checkbox'}
                             name={grupo.id}
                             checked={marcada}
                             disabled={bloqueada}
